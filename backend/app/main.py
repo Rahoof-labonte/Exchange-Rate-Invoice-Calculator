@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Depends, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from .db import SessionLocal
 from . import models, schemas
@@ -6,6 +7,14 @@ from decimal import Decimal, ROUND_HALF_UP
 from datetime import date as date_type
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 def get_db():
     db = SessionLocal()
@@ -17,8 +26,10 @@ def get_db():
 #endpoint1 POST /convert (calculate + persist)
 @app.post("/convert", response_model=schemas.ConversionResponse)
 def convert(data: schemas.ConversionCreate, db: Session = Depends(get_db)):
-    if data.usd_amount <= 0 or data.rate <= 0:
-        raise HTTPException(status_code=400, detail="Invalid input")
+    if data.usd_amount <= 0:
+        raise HTTPException(status_code=400, detail="Invalid USD amount")
+    if data.rate <= 0:
+        raise HTTPException(status_code=400, detail="Invalid conversion rate")
     usd     = Decimal(data.usd_amount)
     rate    = Decimal(data.rate)
     jpy     = (usd * rate).quantize(Decimal("1"), rounding=ROUND_HALF_UP)
@@ -37,7 +48,7 @@ def convert(data: schemas.ConversionCreate, db: Session = Depends(get_db)):
 #endpoint2 GET /conversions?limit=&offset=&date=YYYY-MM-DD (history list)
 @app.get("/conversions")
 def get_conversions(
-    limit: int  = 10,
+    limit: int  = 100,
     offset: int = 0,
     date: date_type | None = None,
     db: Session = Depends(get_db)
@@ -46,6 +57,8 @@ def get_conversions(
     if date:
         query   = query.filter(models.Conversion.conversion_date == date)
     conversions = query.offset(offset).limit(limit).all()
+    if not conversions:
+        raise HTTPException(status_code=404, detail="No conversions found")
     return conversions
 
 #endpoint3 GET /conversions/{id} (detail)
