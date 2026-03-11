@@ -4,7 +4,7 @@ from datetime import date
 class ConversionCreate(BaseModel):
 
     usd_amount: float
-    rate: float = Field(gt=0)
+    rate: float
     rate_source: str
     conversion_date: date
 
