@@ -3,9 +3,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { convertCurrency, resetConversion } from "../redux/conversionSlice";
 
 function ConverterForm() {
-
   const dispatch = useDispatch();
-  const { currentConversion, loading, error } = useSelector(state => state.conversion);
+  const { currentConversion, loading, formError } = useSelector(state => state.conversion);
   const [form, setForm] = useState({
     usd_amount: "",
     rate: "",
@@ -95,9 +94,9 @@ function ConverterForm() {
 
       {loading && <p className="mt-3">Processing...</p>}
 
-      {error && (
+      {formError && (
         <div className="alert alert-danger mt-3">
-          {error}
+          {formError}
         </div>
       )}
 
