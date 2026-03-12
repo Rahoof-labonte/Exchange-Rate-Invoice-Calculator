@@ -27,16 +27,20 @@ export const convertCurrency = createAsyncThunk(
 
 export const fetchHistory = createAsyncThunk(
   "conversion/history",
-  async (date, { rejectWithValue }) => {
+  async ({ limit = 10, offset = 0, date = null }, { rejectWithValue }) => {
     try {
-      const url = date ? `/conversions?date=${date}` : "/conversions";
+      let url = `/conversions?limit=${limit}&offset=${offset}`;
+      if (date) {
+        url += `&date=${date}`;
+      }
       const res = await API.get(url);
       return res.data;
     } catch (err) {
+      // console.log(err.response.data.detail);
       if (err.response) {
         return rejectWithValue({
           status: err.response.status,
-          message: err.response.data.detail
+          message: err.response.data.detail          
         });
       }
       return rejectWithValue({
@@ -53,12 +57,14 @@ const conversionSlice = createSlice({
     currentConversion: null,
     history: [],
     loading: false,
-    error: null
+    listError: null,
+    formError: null
   },
   reducers: {
     resetConversion: (state) => {
       state.currentConversion = null;
-      state.error = null;
+      state.formError = null;
+      state.listError = null;
     }
   },
 
@@ -67,32 +73,38 @@ const conversionSlice = createSlice({
     builder
       .addCase(convertCurrency.pending, (state) => {
         state.loading = true;
-        state.error = null;
+        state.formError = null;
       })
 
       .addCase(convertCurrency.fulfilled, (state, action) => {
         state.loading = false;
         state.currentConversion = action.payload;
+        state.formError = null;
       })
 
       .addCase(convertCurrency.rejected, (state, action) => {
         state.loading = false;
         if (action.payload) {
-          state.error = action.payload.message;
+          state.formError = action.payload.message;
         } else {
-          state.error = "Something went wrong";
+          state.formError = "Something went wrong";
         }
       })
 
       .addCase(fetchHistory.fulfilled, (state, action) => {
-        state.history = action.payload;
+        state.history = action.payload.data;
+        state.total = action.payload.total;
+        state.loading = false;
+        state.listError = null;
       })
 
       .addCase(fetchHistory.rejected, (state, action) => {
-        state.error = action.payload;
+        state.listError = action.payload?.message || "Something went wrong";
+        state.loading = false;
+        state.history = [];
       });
   }
 });
 
-export const { resetConversion } = conversionSlice.actions;
+export const { resetConversion, clearError } = conversionSlice.actions;
 export default conversionSlice.reducer;

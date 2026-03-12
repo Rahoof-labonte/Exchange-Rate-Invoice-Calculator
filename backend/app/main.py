@@ -48,7 +48,7 @@ def convert(data: schemas.ConversionCreate, db: Session = Depends(get_db)):
 #endpoint2 GET /conversions?limit=&offset=&date=YYYY-MM-DD (history list)
 @app.get("/conversions")
 def get_conversions(
-    limit: int  = 100,
+    limit: int  = 25,
     offset: int = 0,
     date: date_type | None = None,
     db: Session = Depends(get_db)
@@ -56,10 +56,14 @@ def get_conversions(
     query = db.query(models.Conversion)
     if date:
         query   = query.filter(models.Conversion.conversion_date == date)
+    total = query.count()
     conversions = query.offset(offset).limit(limit).all()
     if not conversions:
         raise HTTPException(status_code=404, detail="No conversions found")
-    return conversions
+    return {
+        "data": conversions,
+        "total": total
+    }
 
 #endpoint3 GET /conversions/{id} (detail)
 @app.get("/conversions/{id}")
