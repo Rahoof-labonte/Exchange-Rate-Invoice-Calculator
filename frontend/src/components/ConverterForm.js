@@ -30,7 +30,7 @@ function ConverterForm() {
         <h6 >CONVERSION FORM</h6>
       </div>
       <div className="px-3 py-2">
-        <form className="w-50 mx-auto" onSubmit={handleSubmit}>
+        <form className="w-50 mx-auto mt-5" onSubmit={handleSubmit}>
           <div className="row mb-3">
             <div className="col">
               <label>USD Amount</label>

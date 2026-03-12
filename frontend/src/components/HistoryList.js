@@ -50,6 +50,19 @@ function HistoryList() {
     }
   };
   const pages = getPages();
+
+  const getRateBadge = (source) => {
+    switch (source) {
+      case "BOJ":
+        return <span className="badge bg-primary p-2">BOJ</span>;
+      case "Mizuho TTM":
+        return <span className="badge bg-success p-2">Mizuho TTM</span>;
+      case "Manual":
+        return <span className="badge bg-warning text-dark p-2">Manual</span>;
+      default:
+        return <span className="badge bg-secondary p-2">{source}</span>;
+    }
+  };
   return (
     <div>
       <div className=" d-flex justify-content-between bg-secondary bg-gradient bg-opacity-100 text-white p-2">
@@ -67,7 +80,7 @@ function HistoryList() {
           <thead className="table-dark">
             <tr>
               <th style={{ width: "70px" }}>Sl No.</th>
-              <th style={{ width: "50px" }}>Id</th>
+              <th className="text-center" style={{ width: "60px" }}>Id</th>
               <th>USD</th>
               <th>Rate</th>
               <th>JPY</th>
@@ -82,11 +95,11 @@ function HistoryList() {
                   {offset + index + 1}
                   <span onClick={() => handleDelete(item.id)} className="delete-icon" >DELETE</span>
                 </td>
-                <td>{item.id}</td>
+                <td className="text-center">{item.id}</td>
                 <td>{item.usd_amount}</td>
                 <td>{item.rate}</td>
                 <td>{item.jpy_amount}</td>
-                <td>{item.rate_source}</td>
+                <td>{getRateBadge(item.rate_source)}</td>
                 <td>{item.conversion_date}</td>
               </tr>
             ))}
