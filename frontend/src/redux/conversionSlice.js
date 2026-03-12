@@ -65,6 +65,9 @@ const conversionSlice = createSlice({
       state.currentConversion = null;
       state.formError = null;
       state.listError = null;
+    },
+    clearCurrentConversion: (state) => {
+       state.currentConversion = null;
     }
   },
 
@@ -74,6 +77,7 @@ const conversionSlice = createSlice({
       .addCase(convertCurrency.pending, (state) => {
         state.loading = true;
         state.formError = null;
+        state.currentConversion = null;
       })
 
       .addCase(convertCurrency.fulfilled, (state, action) => {
@@ -84,6 +88,7 @@ const conversionSlice = createSlice({
 
       .addCase(convertCurrency.rejected, (state, action) => {
         state.loading = false;
+        state.currentConversion = null;
         if (action.payload) {
           state.formError = action.payload.message;
         } else {
@@ -106,5 +111,5 @@ const conversionSlice = createSlice({
   }
 });
 
-export const { resetConversion, clearError } = conversionSlice.actions;
+export const { resetConversion, clearCurrentConversion } = conversionSlice.actions;
 export default conversionSlice.reducer;
