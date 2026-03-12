@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, NavLink } from "react-router-dom";
 import ConverterForm from "./components/ConverterForm";
 import HistoryList from "./components/HistoryList";
+import PageNotFound from "./components/PageNotFound";
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
             <Routes>
               <Route path="/" element={<ConverterForm />} />
               <Route path="/history" element={<HistoryList />} />
+              <Route path="*" element={<PageNotFound />} />
             </Routes>
           </div>
         </div>
