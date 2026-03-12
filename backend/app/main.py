@@ -1,12 +1,14 @@
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
-from .db import SessionLocal
+from .db import SessionLocal, engine, Base
 from . import models, schemas
 from decimal import Decimal, ROUND_HALF_UP
 from datetime import date as date_type
 
 app = FastAPI()
+
+Base.metadata.create_all(bind=engine)
 
 app.add_middleware(
     CORSMiddleware,
