@@ -51,6 +51,20 @@ export const fetchHistory = createAsyncThunk(
   }
 );
 
+export const deleteConversion = createAsyncThunk(
+  "conversion/deleteConversion",
+  async (id, { rejectWithValue }) => {
+    try {
+      const res = await API.delete(`/conversions/${id}`);
+      return res.data; 
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data?.detail || "Delete failed"
+      );
+    }
+  }
+);
+
 const conversionSlice = createSlice({
   name: "conversion",
   initialState: {
@@ -129,7 +143,19 @@ const conversionSlice = createSlice({
         state.listError = action.payload?.message || "Something went wrong";
         state.loading = false;
         state.history = [];
-      });
+      })
+
+      .addCase(deleteConversion.fulfilled, (state, action) => {
+        const deletedId = action.payload.id;
+        state.history = state.history.filter(
+          item => item.id !== deletedId
+        );
+        state.total -= 1;
+      })
+
+      .addCase(deleteConversion.rejected, (state, action) => {
+        state.listError = action.payload || "Delete failed";
+      })
   }
 });
 

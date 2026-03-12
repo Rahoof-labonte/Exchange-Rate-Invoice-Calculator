@@ -53,9 +53,9 @@ def get_conversions(
     date: date_type | None = None,
     db: Session = Depends(get_db)
 ):
-    query = db.query(models.Conversion)
+    query = db.query(models.Conversion).order_by(models.Conversion.conversion_date.desc())
     if date:
-        query   = query.filter(models.Conversion.conversion_date == date)
+        query   = query.filter(models.Conversion.conversion_date == date).order_by(models.Conversion.conversion_date.desc())
     total = query.count()
     conversions = query.offset(offset).limit(limit).all()
     if not conversions:
@@ -72,3 +72,13 @@ def get_conversion(id: int, db: Session = Depends(get_db)):
     if not conversion:
         raise HTTPException(status_code=404, detail="Conversion not found")
     return conversion
+
+#endpoint4 DELETE /conversions/{id} (delete)
+@app.delete("/conversions/{id}")
+def delete_conversion(id: int, db: Session = Depends(get_db)):
+    conversion  = db.query(models.Conversion).filter(models.Conversion.id == id).first()
+    if not conversion:
+        raise HTTPException(status_code=404, detail="Conversion not found")
+    db.delete(conversion)
+    db.commit()
+    return { "message": "Conversion deleted","id": id}

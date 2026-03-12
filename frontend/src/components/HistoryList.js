@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchHistory } from "../redux/conversionSlice";
+import { fetchHistory, deleteConversion } from "../redux/conversionSlice";
 
 function HistoryList() {
   const dispatch = useDispatch();
   const { history, total, listError } = useSelector(state => state.conversion);
-  console.log('listError',listError);
+  // console.log('listError',listError);
   const limit = 10;
   const [page, setPage] = useState(1);
   const [date, setDate] = useState("");
@@ -36,6 +36,19 @@ function HistoryList() {
     }
     return pages;
   };
+
+  const handleDelete = (id) => {
+    if (window.confirm("Delete this conversion?")) {
+      dispatch(deleteConversion(id))
+      .unwrap()
+      .then((res) => {
+        alert(`Conversion ${res.id} deleted successfully`);
+      })
+      .catch((err) => {
+        alert(err);
+      });
+    }
+  };
   const pages = getPages();
   return (
     <div>
@@ -53,7 +66,8 @@ function HistoryList() {
         <table className="table table-bordered">
           <thead className="table-dark">
             <tr>
-              <th>ID</th>
+              <th style={{ width: "70px" }}>Sl No.</th>
+              <th style={{ width: "50px" }}>Id</th>
               <th>USD</th>
               <th>Rate</th>
               <th>JPY</th>
@@ -62,8 +76,12 @@ function HistoryList() {
             </tr>
           </thead>
           <tbody>
-            {history.map((item) => (
-              <tr key={item.id}>
+            {history.map((item, index) => (
+              <tr key={item.id} className="history-row">
+                <td className="position-relative text-center">
+                  {offset + index + 1}
+                  <span onClick={() => handleDelete(item.id)} className="delete-icon" >DELETE</span>
+                </td>
                 <td>{item.id}</td>
                 <td>{item.usd_amount}</td>
                 <td>{item.rate}</td>
@@ -105,6 +123,12 @@ function HistoryList() {
           Next
         </button>
       </div>
+      <style>
+        {`
+          .history-row .delete-icon {display: none;position: absolute;cursor: pointer;color: #ffffff;font-size: 12px;background: red;padding: 4px;border-radius: 4px;font-weight: 700;left: 10px;}
+          .history-row:hover .delete-icon {display: inline;}
+        `}
+      </style>
     </div>
   );
 }
