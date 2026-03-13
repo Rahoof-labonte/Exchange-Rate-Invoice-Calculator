@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { convertCurrency, resetForm, clearCurrentConversion, setFormField } from "../redux/conversionSlice";
 
